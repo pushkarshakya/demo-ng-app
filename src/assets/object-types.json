@@ -1,0 +1,32 @@
+[
+    {
+      "objectTypeId": 1,
+      "objectTypeName": "Object A",
+      "description": "Object A description",
+      "level": 1
+    },
+    {
+      "objectTypeId": 2,
+      "objectTypeName": "Object B",
+      "description": "Object B description",
+      "level": 2
+    },
+    {
+      "objectTypeId": 3,
+      "objectTypeName": "Object C",
+      "description": "Object C description",
+      "level": 3
+    },
+    {
+      "objectTypeId": 4,
+      "objectTypeName": "Object D",
+      "description": "Object D description",
+      "level": 4
+    },
+    {
+      "objectTypeId": 5,
+      "objectTypeName": "Object E",
+      "description": "Object E description",
+      "level": 5
+    }
+]

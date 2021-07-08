@@ -1,0 +1,74 @@
+<div class="row">
+    <div class="col-sm-6">
+        <h3>Object Type Details</h3>
+        <hr />
+        <form>
+            <div class="form-group" *ngIf="isEditMode">
+                <label for="category">Object Type Id</label>
+                <input type="text" class="form-control" id="objectTypeId" name="objectTypeId" readonly
+                    [(ngModel)]="objectType.objectTypeId">
+            </div>
+            <div class="form-group">
+                <label for="category">Object Type Name</label>
+                <input type="text" class="form-control" id="objectTypeName" name="objectTypeName" maxlength="45"
+                    [(ngModel)]="objectType.objectTypeName">
+            </div>
+            <div class="form-group">
+                <label for="category">Description</label>
+                <textarea class="form-control" id="description" name="description" maxlength="500"
+                    [(ngModel)]="objectType.description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="category">Level</label>
+                <input type="text" class="form-control" id="level" name="level" [(ngModel)]="objectType.level">
+            </div>
+            <br />
+            <button type="submit" class="btn btn-success" *ngIf="!isEditMode" (click)="addObjectType()">Add</button>
+            <button type="submit" class="btn btn-success" *ngIf="isEditMode" (click)="saveObjectType()">Save</button>
+            &nbsp;
+            <button class="btn btn-warning" (click)="clear()">Clear</button>
+        </form>
+    </div>
+</div>
+
+<br />
+<div class="row">
+    <div>
+        <span class="alert-danger">
+            {{this.errorMessage}}
+        </span>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-10">
+        <h3>Object Type List</h3>
+
+        <hr />
+        <div class="row" *ngIf="objectTypes.length >0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Object Type Id</th>
+                        <th>Object Type Name</th>
+                        <th>Description</th>
+                        <th>Level</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let objectType of objectTypes">
+                        <td>{{objectType.objectTypeId}}</td>
+                        <td>{{objectType.objectTypeName}}</td>
+                        <td>{{objectType.description}}</td>
+                        <td>{{objectType.level}}</td>
+                        <td>
+                            <button class="btn fa fa-edit" (click)="edit(objectType.objectTypeId)"></button> &nbsp;
+                            <button class="btn fa fa-remove" (click)="delete(objectType.objectTypeId)"></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

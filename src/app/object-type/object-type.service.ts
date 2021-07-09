@@ -1,46 +1,32 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, throwError } from "rxjs";
-import { catchError, map, tap } from 'rxjs/operators';
+import { Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 import { IObjectType } from "./object-type";
 
 @Injectable({
     providedIn: 'root'
 })
 export class ObjectTypeService {
-    private objectTypeUrl = 'assets/object-types.json';
-
     constructor(private http: HttpClient) { }
 
     getObjectTypes(): Observable<IObjectType[]> {
-        return this.http.get<IObjectType[]>(this.objectTypeUrl)
-            .pipe(
-                tap(data => console.log('All: ', JSON.stringify(data))),
-                catchError(this.handleError)
-            );
+        return this.http.get<IObjectType[]>(environment.objectTypeApiUrl + '/GetAll');
     }
 
     getObjectType(objectTypeId: number): Observable<IObjectType | undefined> {
-        return this.getObjectTypes()
-            .pipe(
-                map((objectTypes: IObjectType[]) => objectTypes.find(o => o.objectTypeId === objectTypeId))
-            );
+        return this.http.get<IObjectType>(environment.objectTypeApiUrl+ '/Get/' + objectTypeId);
     }
 
-    private handleError(err: HttpErrorResponse): Observable<never> {
-        // in a real world app, we may send the server to some remote logging infrastructure
-        // instead of just logging it to the console
-        let errorMessage = '';
-        if (err.error instanceof ErrorEvent) {
-            // A client-side or network error occurred. Handle it accordingly.
-            errorMessage = `An error occurred: ${err.error.message}`;
-        } else {
-            // The backend returned an unsuccessful response code.
-            // The response body may contain clues as to what went wrong,
-            errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
-        }
-        console.error(errorMessage);
-        return throwError(errorMessage);
+    insertObjectType(objectType: IObjectType) {
+        return this.http.post(environment.objectTypeApiUrl + "/Insert", objectType);
     }
 
+    updateObjectType(objectType: IObjectType) {
+        return this.http.put(environment.objectTypeApiUrl + "/Update/" + objectType.objectTypeId, objectType);
+    }
+
+    deleteObjectType(objectTypeId: any) {
+        return this.http.delete(environment.objectTypeApiUrl + "/Delete/" + objectTypeId);
+    }
 }

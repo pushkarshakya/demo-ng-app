@@ -1,4 +1,6 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { IObjectType } from './object-type';
 import { ObjectTypeService } from './object-type.service';
 
@@ -8,47 +10,70 @@ import { ObjectTypeService } from './object-type.service';
   styleUrls: ['./object-type.component.css']
 })
 export class ObjectTypeComponent implements OnInit {
-
+  objectTypeForm: FormGroup;
   objectType: IObjectType = {};
   objectTypes: IObjectType[] = [];
   errorMessage = '';
   isEditMode: boolean = false;
 
-  constructor(private objectTypeService: ObjectTypeService) { }
+  constructor(private objectTypeService: ObjectTypeService) {
+    this.objectTypeForm = this.getEmptyForm();
+  }
+
+  getEmptyForm(): FormGroup {
+    return new FormGroup({
+      objectTypeId: new FormControl(this.objectType.objectTypeId),
+      objectTypeName: new FormControl(this.objectType.objectTypeName, [Validators.required]),
+      description: new FormControl(this.objectType.description, [Validators.required]),
+      level: new FormControl(this.objectType.level, [Validators.required, Validators.pattern("^[1-5]")])
+    });
+  }
+
+  get objectTypeId() { return this.objectTypeForm.get('objectTypeId') as FormControl; }
+  get objectTypeName() { return this.objectTypeForm.get('objectTypeName') as FormControl; }
+  get description() { return this.objectTypeForm.get('description') as FormControl; }
+  get level() { return this.objectTypeForm.get('level') as FormControl; }
 
   ngOnInit(): void {
+    this.clear();
+    this.refreshObjectTypeList();
+  }
+
+  refreshObjectTypeList() {
     this.objectTypeService.getObjectTypes().subscribe({
       next: objectTypes => {
         this.objectTypes = objectTypes;
       },
-      error: (err: string) => this.errorMessage = err
+      error: (err: HttpErrorResponse) => { this.handleError(err); },
     });
   }
 
   clear() {
     this.objectType = {};
+    this.objectTypeForm.reset();
     this.isEditMode = false;
     this.errorMessage = '';
-
   }
 
   addObjectType() {
-    this.objectTypes = this.objectTypes.concat(this.objectType);
-    this.clear();
+    this.objectTypeService.insertObjectType(this.objectType).subscribe({
+      error: (err: HttpErrorResponse) => { this.handleError(err); },
+      complete: () => {
+        this.clear();
+        this.refreshObjectTypeList();
+      }
+    });
   }
 
   edit(objectTypeId: any) {
-    this.clear();
-
     this.objectTypeService.getObjectType(objectTypeId).subscribe({
       next: objectType => {
-        console.log(objectType);
         if (objectType != undefined) {
           this.objectType = objectType;
           this.isEditMode = true;
         }
       },
-      error: (err: string) => this.errorMessage = err
+      error: (err: HttpErrorResponse) => { this.handleError(err); }
     });
   }
 
@@ -56,14 +81,30 @@ export class ObjectTypeComponent implements OnInit {
     if (!confirm("Are you sure to delete this Object Type?"))
       return;
 
-    this.clear();
-    this.objectTypes = this.objectTypes.filter(item => item.objectTypeId != objectTypeId);
+    this.objectTypeService.deleteObjectType(objectTypeId).subscribe({
+      error: (err: HttpErrorResponse) => { this.handleError(err); },
+      complete: () => {
+        this.clear();
+        this.refreshObjectTypeList();
+      }
+    });
   }
 
   saveObjectType() {
-    let objectType: any = this.objectTypes.find(item => item.objectTypeId == this.objectType.objectTypeId);
-    if (objectType != undefined)
-      objectType.objectTypeName = this.objectType.objectTypeName;
-  }  
+    this.objectTypeService.updateObjectType(this.objectType).subscribe({
+      error: (err: HttpErrorResponse) => { this.handleError(err); },
+      complete: () => {
+        this.refreshObjectTypeList();
+      }
+    });
+  }
 
+  private handleError(err: HttpErrorResponse) {
+    if (err.error instanceof ErrorEvent) {
+      this.errorMessage = `An error occurred: ${err.error.message}`;
+    } else {
+      this.errorMessage = JSON.stringify(err.error) + ' ' + err.message;
+    }
+    console.error(this.errorMessage);
+  }
 }
